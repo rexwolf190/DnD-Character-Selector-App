@@ -67,34 +67,39 @@ public class Program
     public static void MainMenu(List<Character> Characters1)
     {
 
-        Console.Clear();
-        var choice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .Title("Main Menu")
-            .AddChoices(
-               "Create a new character",
-               "Save all characters",
-               "Load all characters"
-                ));
-
-        if (choice == "Create a new character")
+        while (true)
         {
-            GetCharacterIntoFile();
+            Console.Clear();
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Main Menu")
+                .AddChoices(
+                   "Create a new character",
+                   "Save all characters",
+                   "Load all characters"
+                    ));
+
+            if (choice == "Create a new character")
+            {
+                GetCharacterIntoFile();
+            }
+
+            if (choice == "Save all characters")
+            {
+                SaveToNewFile(characters);
+                Console.WriteLine("Press enter to continue");
+                Console.ReadLine();
+
+            }
+
+
+            if (choice == "Load all characters")
+            {
+                GetCharacter(characters);
+            }
+
         }
 
-        if (choice == "Save all characters")
-        {
-            SaveToNewFile(characters);
-            Console.WriteLine("Press enter to continue");
-            Console.ReadLine();
-
-        }
-
-
-        if (choice == "Load all characters")
-        {
-            GetCharacter(characters);
-        }
 
 
     }
@@ -201,13 +206,13 @@ public class Program
                 case ConsoleKey.F1:
                     {
                         Console.Clear();
-                        if (newCharacter.PointBuyStrength < 7)
+                        if (newCharacter.PointBuyStrength < 7 && (newCharacter.TotalSkillPoints - PointBuyCost(newCharacter.PointBuyStrength)) >= 0)
                         {
                             newCharacter.TotalSkillPoints -= PointBuyCost(newCharacter.PointBuyStrength);
                             newCharacter.PointBuyStrength++;
                         }
                         else { Console.WriteLine("Cannot be increased. Maximum value reached"); }
-                        AnsiConsole.WriteLine($"[red]Strength[/] increased. Skillpoints left are {newCharacter.TotalSkillPoints}");
+                        AnsiConsole.WriteLine($"Strength increased. Skillpoints left are {newCharacter.TotalSkillPoints}");
                         BuildTable(newCharacter);
                         break;
                     }
@@ -216,7 +221,7 @@ public class Program
                     {
                         Console.Clear();
 
-                        if (newCharacter.PointBuyDexterity < 7)
+                        if (newCharacter.PointBuyDexterity < 7 && (newCharacter.TotalSkillPoints - PointBuyCost(newCharacter.PointBuyDexterity)) >= 0)
                         {
                             newCharacter.TotalSkillPoints -= PointBuyCost(newCharacter.PointBuyDexterity);
                             newCharacter.PointBuyDexterity++;
@@ -232,7 +237,7 @@ public class Program
                 case ConsoleKey.F3:
                     {
                         Console.Clear();
-                        if (newCharacter.PointBuyConstitution < 7)
+                        if (newCharacter.PointBuyConstitution < 7 && (newCharacter.TotalSkillPoints - PointBuyCost(newCharacter.PointBuyConstitution)) >= 0)
                         {
                             newCharacter.TotalSkillPoints -= PointBuyCost(newCharacter.PointBuyConstitution);
                             newCharacter.PointBuyConstitution++;
@@ -246,7 +251,7 @@ public class Program
                 case ConsoleKey.F4:
                     {
                         Console.Clear();
-                        if (newCharacter.PointBuyIntelligence < 7)
+                        if (newCharacter.PointBuyIntelligence < 7 && (newCharacter.TotalSkillPoints - PointBuyCost(newCharacter.PointBuyIntelligence)) >= 0)
                         {
                             newCharacter.TotalSkillPoints -= PointBuyCost(newCharacter.PointBuyIntelligence);
                             newCharacter.PointBuyIntelligence++;
@@ -274,7 +279,7 @@ public class Program
                 case ConsoleKey.F6:
                     {
                         Console.Clear();
-                        if (newCharacter.PointBuyCharisma < 7)
+                        if (newCharacter.PointBuyCharisma < 7 && (newCharacter.TotalSkillPoints - PointBuyCost(newCharacter.PointBuyCharisma)) >= 0)
                         {
                             newCharacter.PointBuyCharisma++;
                             newCharacter.TotalSkillPoints -= PointBuyCost(newCharacter.PointBuyCharisma);
@@ -386,10 +391,10 @@ public class Program
             File.WriteAllText("Characters.json", jsonString);
         }
 
-
-        else if (character != null)
-        {
-            File.Delete("Characters.json");
+        else {
+            var existingCharacters = ReadFromFile();
+            existingCharacters.AddRange(c);
+            c = existingCharacters;
             var options = new JsonSerializerOptions { WriteIndented = true };
             var jsonString = JsonSerializer.Serialize(c, options);
             File.WriteAllText("Characters.json", jsonString);
@@ -409,7 +414,7 @@ public class Program
             return newCharacters;
         }
 
-        else { Console.WriteLine("Does not exist."); return new List<Character>(); }
+        else { Console.WriteLine("Does not exist."); MainMenu(characters); return new List<Character>(); }
 
     }
 }
